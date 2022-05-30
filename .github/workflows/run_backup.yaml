@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Backup
         run: |
-          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f jw_muscadine 2> /dev/null 1> /dev/null"
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f backup 2> /dev/null 1> /dev/null"
 
           CMD=""
           CMD+="docker run --pull always --rm --name backup "
@@ -34,7 +34,7 @@ jobs:
           CMD+="-e 'STORAGE_ACCOUNT_CURRENT_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_CURRENT_CONTAINER }}' "
           CMD+="-e 'STORAGE_ACCOUNT_PREVIOUS_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_PREVIOUS_CONTAINER }}' "
           CMD+="-e 'STORAGE_ACCOUNT_SAS_KEY=${{ secrets.BACKUP_STORAGE_ACCOUNT_SAS_KEY }}' "
-          CMD+="-v '${{ secrets.BACKUP_SITES_MOUNT }}:/volumes/sites "
+          CMD+="-v '${{ secrets.BACKUP_SITES_MOUNT }}:/volumes/sites' "
           CMD+="willia4/electriclemur_backup:latest /entrypoint.sh "
 
           ssh root@v4.electriclemur.com -i ~/.ssh/id "$CMD"
