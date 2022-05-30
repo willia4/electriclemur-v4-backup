@@ -1,4 +1,4 @@
-name: Publish Image
+name: Run Backup
 on:
   workflow_dispatch:
 
