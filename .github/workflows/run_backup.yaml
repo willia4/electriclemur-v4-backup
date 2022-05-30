@@ -1,0 +1,40 @@
+name: Publish Image
+on:
+  workflow_dispatch:
+
+jobs:
+  Run-Backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install SSH Key And Test Connection
+        run: |
+          mkdir -p ~/.ssh/
+          install -m 600 -D /dev/null ~/.ssh/id
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id
+          
+          SSH_HOST_PUBLIC_KEY=$(ssh-keyscan -t ed25519 v4.electriclemur.com 2> /dev/null)
+          echo "$SSH_HOST_PUBLIC_KEY" >> ~/.ssh/known_hosts
+
+          SSH_HOST_PUBLIC_KEY=$(echo "$SSH_HOST_PUBLIC_KEY" | sed 's/^[a-z0-9\.]* //g')
+          echo "{SSH_HOST_PUBLIC_KEY}={${SSH_HOST_PUBLIC_KEY}}" >> $GITHUB_ENV
+
+          SSH_HOST=$(ssh root@v4.electriclemur.com -i ~/.ssh/id "hostname")
+          test "$SSH_HOST" = "lemur-web01"
+
+      - name: Run Backup
+        run: |
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f jw_muscadine 2> /dev/null 1> /dev/null"
+
+          CMD=""
+          CMD+="docker run --pull always --rm --name backup "
+          CMD+="-e 'STORAGE_ACCOUNT_NAME=${{ secrets.BACKUP_STORAGE_ACCOUNT_NAME }}' "
+          CMD+="-e 'STORAGE_ACCOUNT_CURRENT_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_CURRENT_CONTAINER }}' "
+          CMD+="-e 'STORAGE_ACCOUNT_PREVIOUS_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_PREVIOUS_CONTAINER }}' "
+          CMD+="-e 'STORAGE_ACCOUNT_SAS_KEY=${{ secrets.BACKUP_STORAGE_ACCOUNT_SAS_KEY }}' "
+          CMD+="-v '${{ secrets.BACKUP_SITES_MOUNT }}:/volumes/sites"
+          CMD+="willia4/electriclemur_backup:latest /entrypoint.sh"
+
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "$CMD"
