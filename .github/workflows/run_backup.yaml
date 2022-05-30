@@ -36,7 +36,13 @@ jobs:
           CMD+="-e 'STORAGE_ACCOUNT_CURRENT_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_CURRENT_CONTAINER }}' "
           CMD+="-e 'STORAGE_ACCOUNT_PREVIOUS_CONTAINER=${{ secrets.BACKUP_STORAGE_ACCOUNT_PREVIOUS_CONTAINER }}' "
           CMD+="-e 'STORAGE_ACCOUNT_SAS_KEY=${{ secrets.BACKUP_STORAGE_ACCOUNT_SAS_KEY }}' "
+
+          CMD+="-e 'MONGO_HOST=mongo' "
+          CMD+="-e 'MONGO_USERNAME=${{ secrets.BACKUP_MONGO_USERNAME }}' "
+          CMD+="-e 'MONGO_PASSWORD=${{ secrets.BACKUP_MONGO_PASSWORD }}' "
+
           CMD+="-v '${{ secrets.BACKUP_SITES_MOUNT }}:/volumes/sites' "
+          CMD+="--link mongo "
           CMD+="willia4/electriclemur_backup:latest /entrypoint.sh "
 
           ssh root@v4.electriclemur.com -i ~/.ssh/id "$CMD"
