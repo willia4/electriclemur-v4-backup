@@ -9,5 +9,4 @@ RUN curl -sSL "https://aka.ms/downloadazcopy-v10-linux" -o /root/azcopy.tar.gz &
 RUN mkdir -p /volumes/sites
 
 COPY *.sh /
-
-#ENTRYPOINT [ "/entrypoint.sh" ]
+RUN chmod +x /entrypoint.sh
