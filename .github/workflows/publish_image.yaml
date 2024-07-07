@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - 'main'
+    paths-ignore:
+      - 'history.txt'
   workflow_dispatch:
 
 jobs:
